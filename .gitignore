@@ -1,0 +1,28 @@
+# Compilation
+*.o
+*.a
+a.out
+
+## Vim
+*.sw*
+\#*#
+*~
+:
+q
+vg
+z
+
+## Rust
+/target
+/Cargo.lock
+.env
+
+## CMake
+build/
+
+## Other
+.info
+.cache
+*.old
+perf*
+compile_commands.json

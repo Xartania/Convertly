@@ -3,5 +3,17 @@ name = "convertly"
 version = "0.1.0"
 edition = "2024"
 
+[dependencies]
+# Error Handling
+anyhow = "1.0.103"
+thiserror = "2.0.18"
+
+# ANSI
+colored = "3.1.1"
+
+# Logger
+env_logger = "0.11.11"
+log = "0.4.33"
+
 [build-dependencies]
 cc = "1.2.60"

@@ -1,6 +1,10 @@
 -------------------------------------------------------------
 Definition for textual input
 -------------------------------------------------------------
+[IMPORT]
+from <path> import <var_prev:(VARIABLES|PARSING)> (, <var_prev:(VARIABLES|PARSING)>)*
+import <path> (, <path>)*
+
 [HEADER]
 file = <file>
 type = <file_type>
@@ -24,7 +28,7 @@ var.end = <boolean>
 var.contains = <string>
 
 [PARSING]
-@var:<var_type>@
+@var[:<var_type>]@
 @def
 using = <var_prev:VARIABLES>
 start_with = <var_now>|entry
@@ -38,93 +42,3 @@ start_after = <var_now>|entry
 
 @code:end
 <instructions>
-
--------------------------------------------------------------
-[OTHER]
-event var ->
-    trigger - chars that have trigger the call
-    ignored - chars between the trigger and the end of the last call (only in start|match)
-    before  - chars before the trigger (since the start of the scope for start|end)
-    after   - chars after the trigger (until the end of the scope for start|end)
-
-/* 'event' variable's <special_methods> -> ret (<size_t>|<none>)
-var.find(<string>)
-var.find(<char>)
-var.rfind(<string>)
-var.rfind(<char>)
-var.count(<string>)
-var.count(<char>)
-var.match_count(<regex>)
-var.size()
-*/
-
-/* 'event' variable's <methods> -> ret <boolean>
-var == <string>
-var.starts_with(<string>)
-var.ends_with(<string>)
-var.contains(<string>)
-var.contains(<char>)
-var.match(<regex>)
-var.has_match(<regex>)
-var[<integer>|<special_methods>] == <char>
-var.is_none(<special_methods>)
-var.empty()
-*/
-
--------------------------------------------------------------
-[RESERVED]
-file|type|extension|ext -> variables name reserved for the header configuration
-entry -> variable name reserved for the entry point in parsing
-event -> variable name reserved for the one passed in the code sub-sections
-i -> variable name reserved for the one used by loop in the code sub-sections
-
--------------------------------------------------------------
-[SYNTAX]
-<none> = [none]
-<empty> =
-<size_t> = (1-9)(0-9)*
-<integer> = [-](1-9)(0-9)*
-<char> = '.'
-<string> = ".*"
-<regex> = <string>
-<boolean> = (true|t|1)|(false|f|0)
-<file> = (binary|b|0)|(textual|t|1)|(language|l|2)
-<file_type> = (input|stdin|1)|(output|stdout|0)
-<var_now> = variables in the same section
-<var_prev> = variables in previous section
-<var_prev:SECTION> = variables in the given SECTION
-<var> = <var_now>|<var_prev>
-<var_type> = (value|v)|(none|<empty>)|<var_now>
-
-<logical_operators> = (&&)|(||)
-<logical_comparator> = <|<=|>|>=|==|!=
-<methods> = see [OTHER] for the 'event' methods definition
-<special_methods> = see [OTHER] for the 'event' special methods definition
-<value2> = <integer>|<special_methods>
-<comparaison> = <value2> <logical_comparator> <value2>
-<value1> = <boolean>|<methods>|<comparaison>
-<condition> = <value1> (<logical_operators> <value1>)*
-<loop> = for (<condition>) {<instructions>}
-<branch> = if (<condition>) {<instructions>}
-<instruction> = <branch>|<loop>|(ret <boolean>)
-<instructions> = <instruction>*
-
--------------------------------------------------------------
-[RULES]
-Section order: HEADER -> VARIABLES -> PARSING
-Value can be used from variables on the same section or previous ones using: var2 = var1 | var2 = var1.sub | var1.sub2 = var1.sub1
-In the 'separated' mode the variables from other section can be access through 'SECTION.var' to prevent shadow declaration
-The space ' ' before & after '='/':=' or '->'/'<-' are optional
-The '=' (immediate) is used for <string> & the ':=' (lazy) is used for <regex>
-Any '= <string>' can be replaced by ':= <regex>'
-A 'code' sub-section that dosen't end on a 'ret <boolean>' is by default treating has false
-Any variables defined in a 'code' sub-section is local and can't be used anywhere else
-The 'code:match' sub-section is only for the one using full regex variables
-The 'event' variable is a struct of <string>
-The 'i' variable is an <size_t>
-Comment start with '@>' or are delimited by '<@'
-
--------------------------------------------------------------
-[IDEA]
- - Predefined variables like 'string', 'array', ...
- - Import things from other file

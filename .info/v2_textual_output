@@ -1,0 +1,37 @@
+-------------------------------------------------------------
+Definition for textual output
+-------------------------------------------------------------
+[HEADER]
+file = <file>
+extension|ext = <string>
+separated|sep = <boolean>
+using = <path>
+indent_size = <size_t>
+
+[FORMAT]
+var ->
+    ignored = <boolean>
+    keep_indent = <boolean>
+    indent = <size_t>
+    before = <string>
+    after = <string>
+var.ignored = <boolean>
+var.keep_indent = <boolean>
+var.indent = <size_t>
+var.before = <string>
+var.after = <string>
+
+var
+var:sub-var
+var:sub-var:sub-var...
+
+[WRITING-HEADER]
+magic = <hex>
+content = <string>
+content:hex = <hex> (<space> <hex>)*
+content:bin = <bin> (<space> <bin>)*
+
+[WRITING-CONTENT]
+@soi[<parameters>]
+<content>
+@eoi

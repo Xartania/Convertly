@@ -1,0 +1,34 @@
+services:
+  database:
+    image: postgres:16-alpine
+    container_name: convertly-postgres
+    environment:
+      POSTGRES_DB: convertly
+      POSTGRES_USER: convertly
+      POSTGRES_PASSWORD: convertly
+    ports:
+      - "5432:5432"
+    volumes:
+      - convertly-postgres-data:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U convertly -d convertly"]
+      interval: 5s
+      timeout: 5s
+      retries: 10
+
+  pgadmin:
+    image: dpage/pgadmin4:latest
+    container_name: convertly-pgadmin
+    environment:
+      PGADMIN_DEFAULT_EMAIL: admin@convertly.dev
+      PGADMIN_DEFAULT_PASSWORD: convertly
+    depends_on:
+      database:
+        condition: service_healthy
+    ports:
+      - "5050:80"
+    volumes:
+      - ./pgadmin/servers.json:/pgadmin4/servers.json:ro
+
+volumes:
+  convertly-postgres-data:

@@ -1,0 +1,8 @@
+spring:
+  datasource:
+    url: ${SPRING_DATASOURCE_URL:jdbc:postgresql://localhost:5432/convertly}
+    username: ${SPRING_DATASOURCE_USERNAME:convertly}
+    password: ${SPRING_DATASOURCE_PASSWORD:convertly}
+    driver-class-name: org.postgresql.Driver
+  jpa:
+    database-platform: org.hibernate.dialect.PostgreSQLDialect

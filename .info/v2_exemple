@@ -1,0 +1,49 @@
+test.json:
+{
+  "sdfkf": [
+    "klerffg": {
+      "fjrshf": "jrkhf"
+    },
+    [
+      "rhgdf",
+      "fjkrhlkj",
+    ]
+  ]
+  "&": [
+  ]
+  "2": [
+  ]
+}
+-------------------------------------------------------------
+[HEADER]
+file = textual
+type = input
+extension = "json"
+
+[VARIABLES]
+@> {...}
+array1 ->
+    start = "{"
+    start = false
+    end = "}"
+    end = false
+
+@> [...]
+array2 := "^\[*\]$"
+
+@> "..."
+string := "^\"*\"$"
+
+[PARSING]
+@element:value@
+@def
+using = string
+
+@elements:element@
+@def
+using = array2
+start_with = entry
+
+@code:end
+if (event.before.match_count("^(?:(?:"(?:\\.|[^"\\])*"|'(?:\\.|[^'\\])*'|[^\[\]"'])*)\[") != event.before.match_count("^(?:(?:"(?:\\.|[^"\\])*"|'(?:\\.|[^'\\])*'|[^\[\]"'])*)[\[\]]")) {ret false}
+ret true

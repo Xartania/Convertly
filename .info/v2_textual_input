@@ -1,0 +1,44 @@
+-------------------------------------------------------------
+Definition for textual input
+-------------------------------------------------------------
+[IMPORT]
+from <path> import <var_prev:(VARIABLES|PARSING)> (, <var_prev:(VARIABLES|PARSING)>)*
+import <path> (, <path>)*
+
+[HEADER]
+file = <file>
+type = <file_type>
+extension|ext = <string>
+separated|sep = <boolean>
+
+[VARIABLES]
+var := <regex>
+var ->
+    start = <string>
+    start = <boolean>
+    end = <string>
+    end = <boolean>
+    contains = <string>
+
+var <-
+var.start = <string>
+var.start = <boolean>
+var.end = <string>
+var.end = <boolean>
+var.contains = <string>
+
+[PARSING]
+@var[:<var_type>]@
+@def
+using = <var_prev:VARIABLES>
+start_with = <var_now>|entry
+start_after = <var_now>|entry
+
+@code:match
+<instructions>
+
+@code:start
+<instructions>
+
+@code:end
+<instructions>

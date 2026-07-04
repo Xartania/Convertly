@@ -17,7 +17,10 @@ pub struct Lexer<'a, K, G: Grammar<K>> {
     _marker: std::marker::PhantomData<K>,
 }
 
-impl<'a, K, G: Grammar<K>> Lexer<'a, K, G> {
+impl<'a, K, G: Grammar<K>> Lexer<'a, K, G>
+where
+    K: PartialEq,
+{
     pub fn new(source: &'a str, grammar: &'a G) -> Self {
         Self {
             source,
@@ -29,7 +32,7 @@ impl<'a, K, G: Grammar<K>> Lexer<'a, K, G> {
         }
     }
 
-    pub fn tokenize(&mut self) -> Result<Vec<Token<'a, K>>, LexerError> {
+    pub fn tokenize(&mut self, comment_kind: K) -> Result<Vec<Token<'a, K>>, LexerError> {
         let mut tokens = Vec::new();
 
         while self.cursor < self.source.len() {
@@ -51,6 +54,10 @@ impl<'a, K, G: Grammar<K>> Lexer<'a, K, G> {
                 let lexeme = &self.source[start..start + len];
                 for c in lexeme.chars() {
                     self.consume_char(c);
+                }
+
+                if kind == comment_kind {
+                    continue;
                 }
 
                 let span = Span::new(start, self.cursor, start_line, start_col);

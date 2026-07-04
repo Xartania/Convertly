@@ -1,59 +1,10 @@
-use std::fmt::Display;
-
 use crate::{
     Result,
-    lexer::{Lexer, grammar::Grammar},
+    lexer::{Lexer, grammar::ConvertlyGrammar, token::TokenKind},
 };
 use clap::{Parser, Subcommand, crate_authors, crate_description, crate_name, crate_version};
 use colored::*;
 use convertly::error::LexerError::FileError;
-
-#[derive(Debug, PartialEq, Eq)]
-enum MockTokenKind {
-    Word,
-    Number,
-    Symbol,
-}
-
-impl Display for MockTokenKind {
-    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
-        let data = match *self {
-            Self::Word => format!("{:<7}", "Word").bright_cyan(),
-            Self::Number => format!("{:<7}", "Number").bright_purple(),
-            Self::Symbol => format!("{:<7}", "Symbol").bright_blue(),
-        };
-        f.write_str(&data.to_string())
-    }
-}
-
-struct MockGrammar;
-
-impl Grammar<MockTokenKind> for MockGrammar {
-    fn match_token(&self, slice: &str) -> Option<(MockTokenKind, usize)> {
-        let mut chars = slice.chars();
-        let first = chars.next()?;
-
-        if first.is_alphabetic() {
-            let len = slice
-                .chars()
-                .take_while(|c| c.is_alphanumeric() || *c == '_')
-                .map(|c| c.len_utf8())
-                .sum();
-            return Some((MockTokenKind::Word, len));
-        }
-
-        if first.is_ascii_digit() {
-            let len = slice
-                .chars()
-                .take_while(|c| c.is_ascii_digit())
-                .map(|c| c.len_utf8())
-                .sum();
-            return Some((MockTokenKind::Number, len));
-        }
-
-        Some((MockTokenKind::Symbol, first.len_utf8()))
-    }
-}
 
 /// Convert any file to another with custom config files.
 #[derive(Parser, Debug)]
@@ -94,10 +45,10 @@ fn tokenize(file_path: &str) -> Result<()> {
         }
     };
 
-    let grammar = MockGrammar;
+    let grammar = ConvertlyGrammar;
     let mut lexer = Lexer::new(&source_code, &grammar);
 
-    let tokens = lexer.tokenize()?;
+    let tokens = lexer.tokenize(TokenKind::Comment)?;
 
     println!(
         "{} {} {}",
@@ -107,12 +58,12 @@ fn tokenize(file_path: &str) -> Result<()> {
     );
     for (i, token) in tokens.iter().enumerate() {
         let msg = format!(
-            " {} Kind: {} | Text: {:<12} | Line: {:<3} Col: {}",
+            " {:<5} Line: {:<4} Col: {:<4} | Kind: {} | Text: {:<12}",
             format!("{i}.").white(),
-            token.kind,
-            format!("'{}'", token.lexeme).bright_yellow(),
             format!("{}", token.span.line).bright_cyan(),
             format!("{}", token.span.column).bright_cyan(),
+            token.kind,
+            format!("'{}'", token.lexeme).bright_yellow(),
         );
         println!("{}", msg.bright_black());
     }

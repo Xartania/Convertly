@@ -187,7 +187,8 @@ impl ConvertlyGrammar {
             "for" => TokenKind::For,
             "ret" => TokenKind::Ret,
 
-            "import" | "from" => TokenKind::Import,
+            "import" => TokenKind::Import,
+            "from" => TokenKind::From,
             "entry" => TokenKind::Entry,
             "event" => TokenKind::Event,
             "i" => TokenKind::LoopIndexI,

@@ -59,17 +59,17 @@ export default function AuthPage({
     const trimmedDisplayName = displayName.trim();
 
     if (!trimmedEmail || !password) {
-      setError('Email et mot de passe sont requis.');
+      setError('Email and password are required.');
       return;
     }
 
     if (mode === 'signup' && !trimmedDisplayName) {
-      setError('Le nom complet est requis.');
+      setError('Full name is required.');
       return;
     }
 
     if (mode === 'signup' && password.length < 8) {
-      setError('Le mot de passe doit contenir au moins 8 caractères.');
+      setError('Password must contain at least 8 characters.');
       return;
     }
 
@@ -100,7 +100,7 @@ export default function AuthPage({
       } else if (requestError instanceof Error) {
         setError(requestError.message);
       } else {
-        setError("Impossible de joindre l'API. Vérifiez que le backend tourne sur localhost:8080.");
+        setError("Unable to reach the API. Check that the backend is running on localhost:8080.");
       }
     } finally {
       setIsSubmitting(false);
@@ -133,7 +133,7 @@ export default function AuthPage({
               </div>
               <button
                 onClick={onClose}
-                aria-label="Fermer"
+                aria-label="Close"
                 className="text-black/40 transition-colors hover:text-black"
               >
                 <X size={20} />
@@ -147,7 +147,7 @@ export default function AuthPage({
                   mode === 'signin' ? 'border-purple-600 text-black' : 'border-transparent text-black/40 hover:text-black'
                 }`}
               >
-                Se connecter
+                Sign in
               </button>
               <button
                 onClick={() => onModeChange('signup')}
@@ -155,7 +155,7 @@ export default function AuthPage({
                   mode === 'signup' ? 'border-purple-600 text-black' : 'border-transparent text-black/40 hover:text-black'
                 }`}
               >
-                S'inscrire
+                Sign up
               </button>
             </div>
 
@@ -172,7 +172,7 @@ export default function AuthPage({
                     {mode === 'signup' && (
                       <div className="mb-4">
                         <label htmlFor="auth-name" className="mb-1.5 block text-xs font-semibold text-black/70">
-                          Nom complet
+                          Full name
                         </label>
                         <input
                           id="auth-name"
@@ -200,11 +200,11 @@ export default function AuthPage({
                     <div className="mb-2">
                       <div className="mb-1.5 flex items-center justify-between">
                         <label htmlFor="auth-password" className="text-xs font-semibold text-black/70">
-                          Mot de passe
+                          Password
                         </label>
                         {mode === 'signin' && (
                           <a href="#" className="text-xs font-semibold text-purple-600 transition-colors hover:text-black">
-                            Oublié ?
+                            Forgot?
                           </a>
                         )}
                       </div>
@@ -230,10 +230,10 @@ export default function AuthPage({
                       className="mt-4 flex w-full items-center justify-center gap-2 rounded-lg bg-purple-600 px-4 py-2.5 text-sm font-semibold text-white transition-colors hover:bg-black disabled:cursor-not-allowed disabled:opacity-60"
                     >
                       {isSubmitting
-                        ? 'Connexion...'
+                        ? 'Signing in...'
                         : mode === 'signin'
-                          ? 'Se connecter'
-                          : 'Créer mon compte'}
+                          ? 'Sign in'
+                          : 'Create account'}
                       <ArrowRight size={16} />
                     </button>
                   </form>
@@ -242,28 +242,28 @@ export default function AuthPage({
 
               <div className="my-6 flex items-center gap-3">
                 <div className="h-px flex-1 bg-black/10" />
-                <span className="text-[11px] font-semibold uppercase tracking-wider text-black/30">ou</span>
+                <span className="text-[11px] font-semibold uppercase tracking-wider text-black/30">or</span>
                 <div className="h-px flex-1 bg-black/10" />
               </div>
 
               <button className="flex w-full items-center justify-center gap-2 rounded-lg border border-black/15 px-4 py-2.5 text-sm font-semibold text-black transition-colors hover:bg-black hover:text-white">
                 <Github size={16} />
-                Continuer avec GitHub
+                Continue with GitHub
               </button>
 
               <p className="mt-6 text-center text-xs text-black/50">
                 {mode === 'signin' ? (
                   <>
-                    Pas encore de compte ?{' '}
+                    No account yet?{' '}
                     <button onClick={() => onModeChange('signup')} className="font-semibold text-purple-600 transition-colors hover:text-black">
-                      S'inscrire
+                      Sign up
                     </button>
                   </>
                 ) : (
                   <>
-                    Déjà un compte ?{' '}
+                    Already have an account?{' '}
                     <button onClick={() => onModeChange('signin')} className="font-semibold text-purple-600 transition-colors hover:text-black">
-                      Se connecter
+                      Sign in
                     </button>
                   </>
                 )}

@@ -8,9 +8,9 @@ interface NavbarProps {
 }
 
 const tutorialNavItems = [
-  { label: "Problème", step: 0 },
+  { label: "Problem", step: 0 },
   { label: "Solution", step: 1 },
-  { label: "Démo", step: 2 },
+  { label: "Demo", step: 2 },
 ] as const;
 
 export function Navbar({ activeNavStep, onAuthOpen, onTutorialStepSelect }: NavbarProps) {
@@ -28,7 +28,7 @@ export function Navbar({ activeNavStep, onAuthOpen, onTutorialStepSelect }: Navb
 
         <nav className="hidden items-center rounded-full border border-black/10 bg-white px-2 py-1 text-sm font-semibold text-black/60 shadow-sm md:flex">
           <a href="#home" className="rounded-full px-4 py-2 transition-colors hover:bg-purple-600 hover:text-white">
-            Accueil
+            Home
           </a>
           {tutorialNavItems.map((item) => (
             <button
@@ -50,13 +50,13 @@ export function Navbar({ activeNavStep, onAuthOpen, onTutorialStepSelect }: Navb
             onClick={() => onAuthOpen("signin")}
             className="hidden rounded-full border border-black/10 bg-white px-4 py-2 text-sm font-semibold text-black transition-colors hover:bg-purple-600 hover:text-white md:block"
           >
-            Se connecter
+            Sign in
           </button>
           <button
             onClick={() => onAuthOpen("signup")}
             className="rounded-full bg-purple-600 px-4 py-2 text-sm font-semibold text-white transition-colors hover:bg-purple-700"
           >
-            S'inscrire
+            Sign up
           </button>
         </div>
       </div>

@@ -331,7 +331,7 @@ export default function ConvertlyLanding() {
 
         setOutputText(JSON.stringify(json, null, 2));
       } catch {
-        setOutputText("// Erreur de conversion. Vérifiez le format du fichier d'entrée.");
+        setOutputText("// Conversion failed. Check the input file format.");
       }
 
       setIsProcessing(false);
@@ -364,6 +364,7 @@ export default function ConvertlyLanding() {
           initialProject={activeToolProject}
           auth={apiAuth}
           onBack={() => setActiveToolProject(null)}
+          onSessionExpired={handleSessionExpired}
         />
       );
     }

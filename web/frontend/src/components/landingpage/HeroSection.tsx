@@ -72,22 +72,22 @@ export function HeroSection() {
             variants={heroTextItem}
             className="mx-auto mt-5 max-w-xl text-xl font-semibold text-black sm:text-2xl"
           >
-            Un langage de script pour automatiser vos fichiers.
+            A scripting language for automating your files.
           </motion.p>
           <motion.p
             variants={heroTextItem}
             className="mx-auto mt-4 max-w-lg text-base leading-7 text-black/60"
           >
-            Convertly centralise le traitement de fichiers. Grâce à notre DSL et son interpréteur dédié, lisez, modifiez, configurez et convertissez tous vos formats au sein d'une plateforme unique.
+            Convertly centralizes file processing. With our DSL and dedicated interpreter, you can read, edit, configure, and convert every format in one platform.
           </motion.p>
 
           <motion.div variants={heroTextItem} className="mt-10 flex flex-wrap items-center justify-center gap-6">
             <a href="#tutorial" className="flex items-center gap-2 bg-purple-600 px-6 py-3 text-sm font-semibold text-white transition-colors hover:bg-black rounded">
-              Découvrir le workflow
+              Explore the workflow
               <ArrowRight size={16} />
             </a>
             <a href="#team" className="flex items-center gap-1.5 text-sm font-semibold text-black transition-colors hover:text-purple-600">
-              Voir la roadmap
+              View the roadmap
               <ArrowRight size={14} />
             </a>
           </motion.div>
@@ -105,7 +105,7 @@ export function HeroSection() {
             className="flex w-24 flex-col items-center gap-2 rounded-xl border border-black/10 bg-white px-3 py-5 shadow-sm sm:w-36 sm:px-4"
           >
             <FileQuestion className="text-black" size={22} />
-            <span className="font-mono text-[10px] text-black/50 sm:text-[11px]">fichier.csv</span>
+            <span className="font-mono text-[10px] text-black/50 sm:text-[11px]">file.csv</span>
           </motion.div>
 
           <motion.div variants={heroArrowItem}>
@@ -131,7 +131,7 @@ export function HeroSection() {
             className="flex w-24 flex-col items-center gap-2 rounded-xl border border-black bg-black px-3 py-5 shadow-sm sm:w-36 sm:px-4"
           >
             <Database className="text-white" size={22} />
-            <span className="font-mono text-[10px] text-white sm:text-[11px]">résultat.json</span>
+            <span className="font-mono text-[10px] text-white sm:text-[11px]">result.json</span>
           </motion.div>
         </motion.div>
       </div>

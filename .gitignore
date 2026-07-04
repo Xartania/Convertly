@@ -21,7 +21,6 @@ z
 build/
 
 ## Other
-.info
 .cache
 *.old
 perf*

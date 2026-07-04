@@ -1,0 +1,142 @@
+csv.input:
+[file]
+category = "input"
+type = "csv"
+regex = false // enable or disabled by default if not define the regex on end & start values (can be specified for only one)
+
+[variables]
+format = [
+    { name: "cell", start: "", end: ";" },
+    { name: "row", start: "", end: "\n" },
+    { name: "content", start: "", end: "" },
+    { name: "special", start: "", end: "", contains: "sp"},
+
+    // Other
+    { name: "test", start: "", end: "ya" },
+    { name: "ya", value: test.end },
+]
+
+[parsing]
+file = [
+    { name: "headers", format: "row{cell}"},
+    { name: "headers2", ignored: true, start_with: "headers", format: "row{cell, 3}"},
+    { name: "rows", start_after: "headers2", format: "content{row{cell}}"},
+    { name: "special_data", start_with: "data", format: "content{row{cell{special, -1}}f}"},
+}
+
+[variables]
+format = [
+    { name: "string", start: "\"", end: "\"" },
+    { name: "title", start: "", end: ":"},
+    { name: "info", start: ": [", end: "\n  ]" },
+]
+
+[parsing]
+file = [
+    { name: "loop", ignored: true, format: ""} // Hidden default entrypoint
+    { name: "infos", format: "info{}"},
+    { name: "titles", start_with: "loop", start_at_each: "infos" , format: "title{string, -1}"},
+}
+
+{
+  "sdfkf": [
+    "klerffg": {
+      "fjrshf": "jrkhf"
+    },
+    [
+      "rhgdf",
+      "fjkrhlkj",
+    ]
+  ]
+  "&": [
+  ]
+  "2": [
+  ]
+}
+
+// f
+- can't apply fusion on a format with limits = -1
+- fusion emplacement by default at max
+content{row{cell}} -> fusion at max { {cell1, cell2}, {cell3, cell4} }
+content{row{cell}}f -> fusion at max { {cell1, cell2}, {cell3, cell4} }
+content{row{cell}f} -> fusion on row {cell1, cell2, cell3, cell4}
+
+// format
+<format_name>{<format>, <limits>} // Stop after the limits have been reach (on limits = -1 no array and only store 1 value)
+<format_name>{<format>} // Loop on the format in parameter
+<format_name>{<limits>}
+<format_name>{} // Loop on that format
+<format_name> // limits = -1
+
+// Ignore
+ignoreChar: "cccc..." // Ignore the char in the string
+ignoreStr: [s1, s2, ...] // Ignore the string in the array
+
+// Ignored (don't store the content, only used to browser the file)
+none -> false
+ignored: true
+ignored: false
+
+// Regex (enable or disabled regex on start & end)
+none -> false
+regex: true
+regex: false
+
+// Start index
+none -> from file start
+start_with
+start_after
+start_at_each // when a thing is added on a var (the var is an array of all trigger result if this one is defined)
+stop_with
+stop_at
+
+#################################################################################################
+json.output:
+[file]
+category = "output"
+type = { from: "csv", to: "json" }
+
+[variables]
+cells = { name: "cells", need: ["rows"], format: "  \"rows[index_header]{}\"(,)!"}
+content = { name: "content", need: ["headers"], format: "  \"{headers{index_header}}\": [\n{cells}\n  ](,)!"}
+
+[format]
+file = "\{\n  {content}\n  \}"
+
+{
+  "header1": [
+      row1.cell1,
+      row2.cell1,
+      ...
+  ],
+  "header2": [
+      row1.cell2,
+      row2.cell2,
+      ...
+  ]
+}
+
+// Format
+{var} = value here
+var{} = for each value (if tow var use var1{} & var2{} stop at the shortest one unless limits is set to true thent the the short ones will be empty)
+
+var{} independant index
+var{<counter_name>}
+var[<counter_name>] use the x element of the variables (on error or out of bounds, display a blank, dosen't affect limit, var{} or counter)
+the counter is global to every variables, only incremented by the higgest parent
+
+(<string>)! -> displayed not on the last print
+!(<string>) -> displayed not on the first print
+!(<string>)! -> displayed not on the first & last print
+(<string>)^ -> displayed only on the last print
+^(<string>) -> displayed only on the first print
+^(<string>)^ -> displayed only on the first & last print
+
+// need
+list of the variables needed for the format
+if one of the needed variables dosen't exist, the whole format is replaced by a blank space ""
+
+// Limit (enable or disable the limit for the deroulement of var{})
+none -> false
+limit: true
+limit: false

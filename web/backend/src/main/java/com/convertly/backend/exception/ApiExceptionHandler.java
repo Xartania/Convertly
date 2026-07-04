@@ -4,6 +4,7 @@ import java.time.Instant;
 import java.util.Map;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.core.AuthenticationException;
 import org.springframework.validation.FieldError;
 import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.annotation.ExceptionHandler;
@@ -21,6 +22,12 @@ public class ApiExceptionHandler {
     public ResponseEntity<ApiError> handleConflict(ConflictException exception) {
         return ResponseEntity.status(HttpStatus.CONFLICT)
             .body(new ApiError("conflict", exception.getMessage(), Instant.now(), Map.of()));
+    }
+
+    @ExceptionHandler(AuthenticationException.class)
+    public ResponseEntity<ApiError> handleAuthentication(AuthenticationException exception) {
+        return ResponseEntity.status(HttpStatus.UNAUTHORIZED)
+            .body(new ApiError("unauthorized", "Invalid email or password", Instant.now(), Map.of()));
     }
 
     @ExceptionHandler(MethodArgumentNotValidException.class)

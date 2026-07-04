@@ -49,6 +49,10 @@ public class UserService {
     }
 
     public User requireCurrentUser(Authentication authentication) {
+        if (authentication == null || !authentication.isAuthenticated()) {
+            throw new org.springframework.security.authentication.AuthenticationCredentialsNotFoundException("Authentication is required");
+        }
+
         return users.findByEmailIgnoreCase(authentication.getName())
             .orElseThrow(() -> new IllegalStateException("Authenticated user is missing from the database"));
     }

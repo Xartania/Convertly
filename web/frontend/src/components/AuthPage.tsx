@@ -128,7 +128,7 @@ export default function AuthPage({
           >
             <div className="flex items-center justify-between border-b border-black/10 px-6 py-5">
               <div className="flex items-center gap-2 text-purple-600">
-                <img src="/transfer.png" alt="Convertly logo" className="h-6 w-6 object-contain" />
+                <img src="/transfer.png" alt="Convertly logo" className="convertly-logo-image h-6 w-6 object-contain" />
                 <span className="text-lg font-bold text-black">Convertly</span>
               </div>
               <button

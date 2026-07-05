@@ -3,7 +3,7 @@ const frameworks = ["React", "Tailwind CSS", "Spring Boot", "Docker", "Linux Ser
 
 export function TechSection() {
   return (
-    <section id="tech" className="border-y border-slate-200 bg-white px-6 py-24 relative">
+    <section id="tech" className="relative border-y border-slate-200 bg-white px-6 py-24 transition-colors">
       <div className="mx-auto grid max-w-7xl gap-16 lg:grid-cols-2">
         <div>
           <h2 className="text-3xl font-bold tracking-tight text-slate-900 sm:text-4xl">Technical Environment</h2>
@@ -16,7 +16,7 @@ export function TechSection() {
               <h4 className="mb-3 font-semibold text-slate-900">Languages</h4>
               <div className="flex flex-wrap gap-2">
                 {languages.map((language) => (
-                  <span key={language} className="bg-slate-50 px-3 py-1 text-sm font-medium border border-slate-200 text-slate-700 rounded-full">
+                  <span key={language} className="rounded-full border border-slate-200 bg-slate-50 px-3 py-1 text-sm font-medium text-slate-700">
                     {language}
                   </span>
                 ))}
@@ -26,7 +26,7 @@ export function TechSection() {
               <h4 className="mb-3 font-semibold text-slate-900">Frameworks & Infrastructure</h4>
               <div className="flex flex-wrap gap-2">
                 {frameworks.map((tech) => (
-                  <span key={tech} className="bg-purple-50 px-3 py-1 text-sm font-medium border border-purple-200 text-purple-700 rounded-full">
+                  <span key={tech} className="rounded-full border border-purple-200 bg-purple-50 px-3 py-1 text-sm font-medium text-purple-700">
                     {tech}
                   </span>
                 ))}

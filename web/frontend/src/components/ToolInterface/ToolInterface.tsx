@@ -31,14 +31,18 @@ const DEMO_PROJECT: ToolProject = {
 interface ToolInterfaceProps {
   initialProject?: ToolProject;
   auth?: ApiAuth;
+  lightMode?: boolean;
   onBack?: () => void;
+  onLightModeToggle?: () => void;
   onSessionExpired?: () => void;
 }
 
 export function ToolInterface({
   initialProject = DEMO_PROJECT,
   auth,
+  lightMode = true,
   onBack,
+  onLightModeToggle,
   onSessionExpired,
 }: ToolInterfaceProps) {
   const {
@@ -121,6 +125,7 @@ export function ToolInterface({
       <main className="flex min-w-0 flex-1 flex-col bg-slate-50">
         <WorkspaceHeader
           canRun={canRun}
+          lightMode={lightMode}
           isFavorite={project.isFavorite}
           isProcessing={isProcessing}
           isSidebarOpen={isSidebarOpen}
@@ -128,6 +133,7 @@ export function ToolInterface({
           saveStatus={saveStatus}
           onBack={onBack ? handleBack : undefined}
           onCancelRun={cancelRun}
+          onLightModeToggle={onLightModeToggle}
           onNameChange={(value) => updateField("name", value)}
           onOpenSidebar={() => setIsSidebarOpen(true)}
           onRun={handleRun}

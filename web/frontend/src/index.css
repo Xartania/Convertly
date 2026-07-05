@@ -2,14 +2,55 @@
 @tailwind components;
 @tailwind utilities;
 
-:root {
+:root,
+.light,
+html[data-theme="light"] {
   font-family: Inter, ui-sans-serif, system-ui, sans-serif;
+  color-scheme: only light;
   color: #10141f;
   background: #f3f6f8;
   font-synthesis: none;
   text-rendering: optimizeLegibility;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
+
+  --page-bg: #f3f6f8;
+  --surface: #ffffff;
+  --surface-muted: #eef2f6;
+  --surface-soft: #e4e9f0;
+  --ink: #10141f;
+  --ink-muted: #667085;
+  --line: #d7dde6;
+  --accent: #7c3aed;
+  --accent-strong: #6d28d9;
+  --accent-soft: #f3e8ff;
+  --success: #047857;
+  --success-soft: #ecfdf5;
+  --danger: #be123c;
+  --danger-soft: #fff1f2;
+}
+
+html.dark,
+.dark,
+html[data-theme="dark"] {
+  color-scheme: dark;
+  color: #eef3f6;
+  background: #0b1016;
+
+  --page-bg: #0b1016;
+  --surface: #111923;
+  --surface-muted: #182333;
+  --surface-soft: #202d3d;
+  --ink: #eef3f6;
+  --ink-muted: #a6b2bf;
+  --line: #2c3948;
+  --accent: #9d8cff;
+  --accent-strong: #c4bbff;
+  --accent-soft: #241f3f;
+  --success: #62d6a7;
+  --success-soft: #123328;
+  --danger: #ff8b9b;
+  --danger-soft: #3a1822;
 }
 
 * {
@@ -18,16 +59,38 @@
 
 html {
   scroll-behavior: smooth;
+  background-color: var(--page-bg);
 }
 
 body {
   margin: 0;
   min-width: 320px;
+  min-height: 100vh;
+  background-color: var(--page-bg);
+  color: var(--ink);
+}
+
+#root {
+  min-height: 100vh;
 }
 
 button,
-input {
+input,
+select,
+textarea {
   font: inherit;
+}
+
+button,
+a,
+input,
+select,
+textarea {
+  -webkit-tap-highlight-color: transparent;
+}
+
+::selection {
+  background: color-mix(in srgb, var(--accent) 32%, transparent);
 }
 
 input:-webkit-autofill,
@@ -36,9 +99,9 @@ input:-webkit-autofill:focus,
 textarea:-webkit-autofill,
 textarea:-webkit-autofill:hover,
 textarea:-webkit-autofill:focus {
-  -webkit-box-shadow: 0 0 0 1000px #ffffff inset;
-  -webkit-text-fill-color: #000000;
-  caret-color: #000000;
+  -webkit-box-shadow: 0 0 0 1000px var(--surface) inset;
+  -webkit-text-fill-color: var(--ink);
+  caret-color: var(--ink);
   transition: background-color 9999s ease-in-out 0s;
 }
 
@@ -47,4 +110,276 @@ textarea:-webkit-autofill:focus {
     linear-gradient(rgba(16, 20, 31, 0.07) 1px, transparent 1px),
     linear-gradient(90deg, rgba(16, 20, 31, 0.07) 1px, transparent 1px);
   background-size: 46px 46px;
+}
+
+:where(.dark) .convertly-grid {
+  background-image:
+    linear-gradient(rgba(238, 243, 246, 0.045) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(238, 243, 246, 0.045) 1px, transparent 1px);
+}
+
+@layer utilities {
+  /* Base surfaces used by the authenticated dashboard and workspace. */
+  :where(.dark) .bg-white {
+    background-color: var(--surface);
+  }
+
+  :where(.dark) .bg-slate-50 {
+    background-color: var(--page-bg);
+  }
+
+  :where(.dark) .bg-slate-100 {
+    background-color: var(--surface-muted);
+  }
+
+  :where(.dark) .bg-slate-900,
+  :where(.dark) .bg-slate-950,
+  :where(.dark) .bg-black {
+    background-color: #080c12;
+  }
+
+  :where(.dark) .bg-black\/5 {
+    background-color: rgb(255 255 255 / 0.06);
+  }
+
+  :where(.dark) .bg-black\/25 {
+    background-color: rgb(255 255 255 / 0.12);
+  }
+
+  :where(.dark) .bg-black\/30 {
+    background-color: rgb(0 0 0 / 0.48);
+  }
+
+  :where(.dark) .bg-black\/60 {
+    background-color: rgb(0 0 0 / 0.7);
+  }
+
+  :where(.dark) .bg-black\/70 {
+    background-color: rgb(0 0 0 / 0.78);
+  }
+
+  :where(.dark) .bg-white\/5,
+  :where(.dark) .bg-white\/\[0\.07\],
+  :where(.dark) .bg-white\/\[0\.08\] {
+    background-color: rgb(255 255 255 / 0.06);
+  }
+
+  :where(.dark) .bg-white\/20 {
+    background-color: rgb(255 255 255 / 0.12);
+  }
+
+  :where(.dark) .bg-white\/85 {
+    background-color: rgb(17 25 35 / 0.88);
+  }
+
+  :where(.dark) .bg-white\/90 {
+    background-color: rgb(17 25 35 / 0.93);
+  }
+
+  :where(.dark) .bg-purple-50 {
+    background-color: var(--accent-soft);
+  }
+
+  :where(.dark) .bg-emerald-50,
+  :where(.dark) .bg-emerald-50\/40 {
+    background-color: var(--success-soft);
+  }
+
+  :where(.dark) .bg-rose-50,
+  :where(.dark) .bg-red-50 {
+    background-color: var(--danger-soft);
+  }
+
+  /* Text hierarchy. Keep text-white untouched so CTA contrast remains correct. */
+  :where(.dark) .text-black,
+  :where(.dark) .text-slate-900,
+  :where(.dark) .text-slate-800,
+  :where(.dark) .text-slate-700 {
+    color: var(--ink);
+  }
+
+  :where(.dark) .text-black\/70 {
+    color: #c6ced7;
+  }
+
+  :where(.dark) .text-black\/60,
+  :where(.dark) .text-slate-600 {
+    color: #aeb8c3;
+  }
+
+  :where(.dark) .text-black\/55 {
+    color: #a4afbb;
+  }
+
+  :where(.dark) .text-black\/50,
+  :where(.dark) .text-slate-500 {
+    color: #97a3b0;
+  }
+
+  :where(.dark) .text-black\/45 {
+    color: #8b97a4;
+  }
+
+  :where(.dark) .text-black\/40,
+  :where(.dark) .text-slate-400 {
+    color: #7f8b98;
+  }
+
+  :where(.dark) .text-black\/35 {
+    color: #74808d;
+  }
+
+  :where(.dark) .text-black\/30 {
+    color: #697581;
+  }
+
+  :where(.dark) .text-black\/25 {
+    color: #5e6975;
+  }
+
+  :where(.dark) .text-purple-700,
+  :where(.dark) .text-purple-600,
+  :where(.dark) .text-purple-500,
+  :where(.dark) .text-purple-400,
+  :where(.dark) .text-purple-300,
+  :where(.dark) .text-violet-100,
+  :where(.dark) .text-violet-200,
+  :where(.dark) .text-violet-300 {
+    color: var(--accent);
+  }
+
+  :where(.dark) .text-emerald-800,
+  :where(.dark) .text-emerald-700,
+  :where(.dark) .text-emerald-600,
+  :where(.dark) .text-emerald-500 {
+    color: var(--success);
+  }
+
+  :where(.dark) .text-rose-700,
+  :where(.dark) .text-rose-600,
+  :where(.dark) .text-rose-500,
+  :where(.dark) .text-red-600 {
+    color: var(--danger);
+  }
+
+  :where(.dark) .convertly-logo-image {
+    filter: brightness(0) invert(1);
+  }
+
+  /* Dividers and card outlines. */
+  :where(.dark) .border-black,
+  :where(.dark) .border-black\/10,
+  :where(.dark) .border-black\/15,
+  :where(.dark) .border-white\/10,
+  :where(.dark) .border-slate-100,
+  :where(.dark) .border-slate-200 {
+    border-color: var(--line);
+  }
+
+  :where(.dark) .divide-slate-200 > :not([hidden]) ~ :not([hidden]),
+  :where(.dark) .divide-slate-100 > :not([hidden]) ~ :not([hidden]) {
+    border-color: var(--line);
+  }
+
+  :where(.dark) .border-purple-200,
+  :where(.dark) .border-purple-300,
+  :where(.dark) .border-violet-300\/20 {
+    border-color: #3b315f;
+  }
+
+  :where(.dark) .border-emerald-200,
+  :where(.dark) .border-emerald-300\/20 {
+    border-color: #245441;
+  }
+
+  :where(.dark) .border-rose-200,
+  :where(.dark) .border-red-200 {
+    border-color: #5a2734;
+  }
+
+  /* Hover states for elements that do not have explicit dark variants. */
+  :where(.dark) .hover\:bg-purple-50:hover,
+  :where(.dark) .group:hover .group-hover\:bg-purple-50 {
+    background-color: var(--accent-soft);
+  }
+
+  :where(.dark) .hover\:bg-rose-50:hover {
+    background-color: var(--danger-soft);
+  }
+
+  :where(.dark) .hover\:bg-white:hover {
+    background-color: var(--surface-soft);
+  }
+
+  :where(.dark) .hover\:bg-black:hover {
+    background-color: var(--accent-strong);
+  }
+
+  :where(.dark) .hover\:border-purple-200:hover,
+  :where(.dark) .hover\:border-purple-300:hover {
+    border-color: var(--accent);
+  }
+
+  :where(.dark) .hover\:border-rose-200:hover {
+    border-color: var(--danger);
+  }
+
+  :where(.dark) .hover\:text-black:hover {
+    color: var(--ink);
+  }
+
+  :where(.dark) .hover\:text-purple-600:hover,
+  :where(.dark) .group:hover .group-hover\:text-purple-600 {
+    color: var(--accent);
+  }
+
+  :where(.dark) .hover\:text-rose-500:hover,
+  :where(.dark) .hover\:text-rose-600:hover {
+    color: var(--danger);
+  }
+
+  /* Form controls inherit a readable foreground in both modes. */
+  :where(.dark) input,
+  :where(.dark) textarea,
+  :where(.dark) select {
+    color: var(--ink);
+    caret-color: var(--accent);
+  }
+
+  :where(.dark) select option {
+    background-color: var(--surface);
+    color: var(--ink);
+  }
+
+  :where(.dark) .placeholder\:text-black\/30::placeholder,
+  :where(.dark) .placeholder\:text-slate-400::placeholder {
+    color: #697581;
+    opacity: 1;
+  }
+
+  :where(.dark) .focus\:bg-white:focus {
+    background-color: var(--surface);
+  }
+
+  :where(.dark) .focus\:border-purple-600:focus {
+    border-color: var(--accent);
+  }
+
+  :where(.dark) .shadow-sm,
+  :where(.dark) .shadow-lg,
+  :where(.dark) .shadow-xl,
+  :where(.dark) .shadow-2xl {
+    --tw-shadow-color: rgb(0 0 0 / 0.38);
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  html {
+    scroll-behavior: auto;
+  }
+
+  .theme-switch,
+  .theme-switch * {
+    transition-duration: 0.01ms !important;
+  }
 }

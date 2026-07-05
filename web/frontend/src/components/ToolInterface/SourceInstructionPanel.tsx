@@ -1,5 +1,6 @@
 import { KeyboardEvent } from "react";
 import { FileText, LayoutTemplate } from "lucide-react";
+import { SourceFileImport } from "./SourceFileImport";
 import type { ToolProject } from "./types";
 
 const TEMPLATES = [
@@ -32,6 +33,10 @@ export function SourceInstructionPanel({
           <FileText size={16} className="text-purple-600" />
           <span className="text-sm font-bold text-black">Source Content</span>
         </div>
+        <SourceFileImport
+          hasSource={source.length > 0}
+          onImport={(content) => onUpdateField("source", content)}
+        />
         <textarea
           value={source}
           onChange={(event) => onUpdateField("source", event.target.value)}

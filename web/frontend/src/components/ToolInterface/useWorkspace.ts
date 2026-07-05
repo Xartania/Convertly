@@ -63,16 +63,27 @@ export function useWorkspace(
   const [saveStatus, setSaveStatus] = useState<SaveStatus>("Saved");
   const abortControllerRef = useRef<AbortController | null>(null);
   const projectRef = useRef(project);
-  const saveRequestIdRef = useRef(0);
+  const isSaveInFlightRef = useRef(false);
+  const activeSavePromiseRef = useRef<Promise<boolean> | null>(null);
   const lastSavedSnapshotRef = useRef(createSaveSnapshot(initialProject));
 
   useEffect(() => {
     projectRef.current = project;
   }, [project]);
 
-  const saveCurrentProject = useCallback(async () => {
+  const saveCurrentProject = useCallback(async function saveLatestProject(): Promise<boolean> {
     if (!auth) {
       return false;
+    }
+
+    if (isSaveInFlightRef.current && activeSavePromiseRef.current) {
+      await activeSavePromiseRef.current;
+
+      if (createSaveSnapshot(projectRef.current) === lastSavedSnapshotRef.current) {
+        return true;
+      }
+
+      return saveLatestProject();
     }
 
     const projectToSave = projectRef.current;
@@ -83,56 +94,63 @@ export function useWorkspace(
       return true;
     }
 
-    const requestId = saveRequestIdRef.current + 1;
-    saveRequestIdRef.current = requestId;
     setSaveStatus("Saving...");
+    isSaveInFlightRef.current = true;
 
-    try {
-      const savedProject = await api.updateProject(auth, projectToSave.id, toSavePayload(projectToSave));
+    const savePromise = (async () => {
+      try {
+        const savedProject = await api.updateProject(auth, projectToSave.id, toSavePayload(projectToSave));
 
-      if (saveRequestIdRef.current !== requestId) {
+        const savedToolProject: ToolProject = {
+          ...projectToSave,
+          name: savedProject.name,
+          status: savedProject.status
+            ? savedProject.status.toLowerCase() as ToolProject["status"]
+            : projectToSave.status,
+          source: savedProject.source ?? "",
+          instruction: savedProject.instruction ?? "",
+          currentOutput: savedProject.currentOutput ?? "",
+          options: parseOptions(savedProject.optionsJson, projectToSave.options),
+          updatedAt: savedProject.updatedAt || projectToSave.updatedAt,
+          isFavorite: savedProject.favorite,
+        };
+        const savedSnapshot = createSaveSnapshot(savedToolProject);
+
+        lastSavedSnapshotRef.current = savedSnapshot;
+
+        if (createSaveSnapshot(projectRef.current) === savedSnapshot) {
+          setProject((currentProject) => ({
+            ...currentProject,
+            updatedAt: savedToolProject.updatedAt,
+          }));
+          setSaveStatus("Saved");
+        } else {
+          setSaveStatus("Unsaved");
+        }
+
         return true;
-      }
+      } catch (error) {
+        if (isAuthError(error)) {
+          onSessionExpired?.();
+          return false;
+        }
 
-      const savedToolProject: ToolProject = {
-        ...projectToSave,
-        name: savedProject.name,
-        status: savedProject.status
-          ? savedProject.status.toLowerCase() as ToolProject["status"]
-          : projectToSave.status,
-        source: savedProject.source ?? "",
-        instruction: savedProject.instruction ?? "",
-        currentOutput: savedProject.currentOutput ?? "",
-        options: parseOptions(savedProject.optionsJson, projectToSave.options),
-        updatedAt: savedProject.updatedAt || projectToSave.updatedAt,
-        isFavorite: savedProject.favorite,
-      };
-      const savedSnapshot = createSaveSnapshot(savedToolProject);
+        setSaveStatus("Save failed");
 
-      lastSavedSnapshotRef.current = savedSnapshot;
-
-      if (createSaveSnapshot(projectRef.current) === savedSnapshot) {
-        setProject((currentProject) => ({
-          ...currentProject,
-          updatedAt: savedToolProject.updatedAt,
-        }));
-        setSaveStatus("Saved");
-      } else {
-        setSaveStatus("Unsaved");
-      }
-
-      return true;
-    } catch (error) {
-      if (isAuthError(error)) {
-        onSessionExpired?.();
         return false;
       }
+    })();
 
-      if (saveRequestIdRef.current === requestId) {
-        setSaveStatus("Save failed");
+    activeSavePromiseRef.current = savePromise;
+
+    try {
+      return await savePromise;
+    } finally {
+      if (activeSavePromiseRef.current === savePromise) {
+        activeSavePromiseRef.current = null;
       }
 
-      return false;
+      isSaveInFlightRef.current = false;
     }
   }, [auth, onSessionExpired]);
 

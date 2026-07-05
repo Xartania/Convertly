@@ -119,8 +119,8 @@ const toToolProject = (project: Project): ToolProject => ({
     project.status === "archived"
       ? "draft"
       : project.status,
-  source: project.source || project.description,
-  instruction: project.instruction || `Process this project and produce a clean result.`,
+  source: project.source,
+  instruction: project.instruction,
   currentOutput: project.currentOutput,
   options: parseToolOptions(project.optionsJson),
   runs: [],

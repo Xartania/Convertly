@@ -34,10 +34,10 @@ public class ProjectService {
         project.setType(normalizeDefault(request.type(), "Custom Workspace"));
         project.setStatus(request.status() == null ? Status.DRAFT : request.status());
         project.setFavorite(Boolean.TRUE.equals(request.favorite()));
-        project.setSource(normalizeOptional(request.source()));
-        project.setInstruction(normalizeOptional(request.instruction()));
-        project.setCurrentOutput(normalizeOptional(request.currentOutput()));
-        project.setOptionsJson(normalizeOptional(request.optionsJson()));
+        project.setSource(normalizeWorkspaceContent(request.source()));
+        project.setInstruction(normalizeWorkspaceContent(request.instruction()));
+        project.setCurrentOutput(normalizeWorkspaceContent(request.currentOutput()));
+        project.setOptionsJson(normalizeWorkspaceContent(request.optionsJson()));
         return projects.save(project);
     }
 
@@ -73,16 +73,16 @@ public class ProjectService {
             project.setFavorite(request.favorite());
         }
         if (request.source() != null) {
-            project.setSource(normalizeOptional(request.source()));
+            project.setSource(normalizeWorkspaceContent(request.source()));
         }
         if (request.instruction() != null) {
-            project.setInstruction(normalizeOptional(request.instruction()));
+            project.setInstruction(normalizeWorkspaceContent(request.instruction()));
         }
         if (request.currentOutput() != null) {
-            project.setCurrentOutput(normalizeOptional(request.currentOutput()));
+            project.setCurrentOutput(normalizeWorkspaceContent(request.currentOutput()));
         }
         if (request.optionsJson() != null) {
-            project.setOptionsJson(normalizeOptional(request.optionsJson()));
+            project.setOptionsJson(normalizeWorkspaceContent(request.optionsJson()));
         }
 
         return project;
@@ -100,5 +100,9 @@ public class ProjectService {
             return fallback;
         }
         return value.trim();
+    }
+
+    private String normalizeWorkspaceContent(String value) {
+        return value == null ? null : value;
     }
 }

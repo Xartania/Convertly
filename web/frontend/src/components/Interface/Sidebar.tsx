@@ -29,7 +29,7 @@ export function Sidebar({
     >
       <div className="flex h-16 items-center justify-between border-b border-black/10 px-6">
         <div className="flex items-center gap-2">
-          <img src="/transfer.png" alt="Convertly logo" className="h-7 w-7 object-contain" />
+          <img src="/transfer.png" alt="Convertly logo" className="convertly-logo-image h-7 w-7 object-contain" />
           <span className="text-xl font-extrabold tracking-tight text-black">
             Convert<span className="text-purple-600">ly</span>
           </span>

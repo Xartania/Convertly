@@ -82,7 +82,7 @@ export function HeroSection() {
           </motion.p>
 
           <motion.div variants={heroTextItem} className="mt-10 flex flex-wrap items-center justify-center gap-6">
-            <a href="#tutorial" className="flex items-center gap-2 bg-purple-600 px-6 py-3 text-sm font-semibold text-white transition-colors hover:bg-black rounded">
+            <a href="#tutorial" className="flex items-center gap-2 rounded bg-purple-600 px-6 py-3 text-sm font-semibold text-white transition-colors hover:bg-black">
               Explore the workflow
               <ArrowRight size={16} />
             </a>

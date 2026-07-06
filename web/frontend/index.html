@@ -8,9 +8,25 @@
       content="Convertly centralizes file editing, custom DSL automation, and format conversion in one workspace."
     />
     <link rel="icon" type="image/png" href="/transfer.png" />
+    <meta name="theme-color" content="#ffffff" />
+    <script>
+      (() => {
+        try {
+          localStorage.removeItem("convertly-theme");
+          localStorage.removeItem("convertly-light-mode");
+          document.documentElement.classList.remove("dark", "light");
+          document.documentElement.dataset.theme = "light";
+          document.documentElement.style.colorScheme = "light";
+        } catch {
+          document.documentElement.classList.remove("dark", "light");
+          document.documentElement.dataset.theme = "light";
+          document.documentElement.style.colorScheme = "light";
+        }
+      })();
+    </script>
     <title>Convertly</title>
   </head>
-  <body>
+  <body style="background: #ffffff; color: #000000">
     <div id="root"></div>
     <script type="module" src="/src/main.tsx"></script>
   </body>

@@ -4,6 +4,7 @@ import static org.hamcrest.Matchers.not;
 import static org.hamcrest.Matchers.notNullValue;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.put;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
@@ -12,6 +13,8 @@ import com.convertly.backend.dto.AuthDtos.LoginRequest;
 import com.convertly.backend.dto.AuthDtos.RegisterRequest;
 import com.convertly.backend.dto.ProjectDtos.ProjectRequest;
 import com.convertly.backend.dto.ProjectDtos.ProjectResponse;
+import com.convertly.backend.dto.ProjectDtos.ProjectUpdateRequest;
+import com.convertly.backend.entity.Project.Status;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import java.util.UUID;
 import org.junit.jupiter.api.Test;
@@ -105,6 +108,50 @@ class AuthJwtIntegrationTest {
                 .header(HttpHeaders.AUTHORIZATION, bearer(otherUser)))
             .andExpect(status().isNotFound())
             .andExpect(jsonPath("$.code").value("not_found"));
+    }
+
+    @Test
+    void projectUpdatePersistsCompleteWorkspaceWithoutTrimmingEditorContent() throws Exception {
+        AuthResponse auth = register("workspace-save");
+        ProjectResponse project = createProject(auth, "Workspace Save");
+        String source = "  first line\nsecond line  ";
+        String instruction = "  keep spacing and convert to JSON\n";
+        String currentOutput = "{\n  \"ok\": true\n}\n";
+        String optionsJson = "{\"language\":\"English\",\"tone\":\"Professional\",\"length\":\"medium\"}";
+
+        ProjectUpdateRequest request = new ProjectUpdateRequest(
+            "Renamed Workspace",
+            "Updated description",
+            "DSL Workspace",
+            Status.READY,
+            true,
+            source,
+            instruction,
+            currentOutput,
+            optionsJson
+        );
+
+        mockMvc.perform(put("/api/projects/{projectId}", project.id())
+                .header(HttpHeaders.AUTHORIZATION, bearer(auth))
+                .contentType(MediaType.APPLICATION_JSON)
+                .content(objectMapper.writeValueAsString(request)))
+            .andExpect(status().isOk())
+            .andExpect(jsonPath("$.name").value("Renamed Workspace"))
+            .andExpect(jsonPath("$.type").value("DSL Workspace"))
+            .andExpect(jsonPath("$.status").value("READY"))
+            .andExpect(jsonPath("$.favorite").value(true))
+            .andExpect(jsonPath("$.source").value(source))
+            .andExpect(jsonPath("$.instruction").value(instruction))
+            .andExpect(jsonPath("$.currentOutput").value(currentOutput))
+            .andExpect(jsonPath("$.optionsJson").value(optionsJson));
+
+        mockMvc.perform(get("/api/projects/{projectId}", project.id())
+                .header(HttpHeaders.AUTHORIZATION, bearer(auth)))
+            .andExpect(status().isOk())
+            .andExpect(jsonPath("$.source").value(source))
+            .andExpect(jsonPath("$.instruction").value(instruction))
+            .andExpect(jsonPath("$.currentOutput").value(currentOutput))
+            .andExpect(jsonPath("$.optionsJson").value(optionsJson));
     }
 
     private AuthResponse register(String prefix) throws Exception {

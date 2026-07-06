@@ -1,9 +1,10 @@
 import { AnimatePresence, motion } from "framer-motion";
-import { Bell, Menu, Moon, Plus, Search } from "lucide-react";
+import { Bell, Menu, Plus, Search } from "lucide-react";
 import { useEffect, useMemo, useState } from "react";
 import { api } from "../../services/api";
 import { API_BASE_URL } from "../../services/api";
 import type { ApiAuth, UserResponse } from "../../types/api";
+import { ThemeSwitch } from "../ThemeSwitch";
 import { DashboardHero } from "./DashboardHero";
 import { NewProjectDialog, type NewProjectInput } from "./NewProjectDialog";
 import { ProjectCard } from "./ProjectCard";
@@ -14,14 +15,33 @@ import { getErrorMessage, isAuthError, mapApiProject } from "./utils";
 interface DashboardProps {
   user: UserResponse;
   auth: ApiAuth;
+  lightMode: boolean;
+  onLightModeToggle: () => void;
   onLogout: () => void;
   onSessionExpired: () => void;
   onProjectOpen: (project: Project) => void;
 }
 
+const getPromptProjectName = (prompt: string) => {
+  const normalizedPrompt = prompt.replace(/\s+/g, " ").trim();
+  const withoutCommand = normalizedPrompt.replace(
+    /^(create|build|generate|make|start)\s+(a|an|the)?\s*/i,
+    ""
+  );
+  const words = withoutCommand.split(" ").filter(Boolean).slice(0, 6).join(" ");
+
+  if (!words) {
+    return "AI Generated Workflow";
+  }
+
+  return words.charAt(0).toUpperCase() + words.slice(1);
+};
+
 export function Dashboard({
   user,
   auth,
+  lightMode,
+  onLightModeToggle,
   onLogout,
   onSessionExpired,
   onProjectOpen,
@@ -166,8 +186,40 @@ export function Dashboard({
         optionsJson: "",
       });
 
-      setProjects((currentProjects) => [mapApiProject(createdProject), ...currentProjects]);
+      const project = mapApiProject(createdProject);
+
+      setProjects((currentProjects) => [project, ...currentProjects]);
       setIsNewProjectModalOpen(false);
+      onProjectOpen(project);
+    } catch (error) {
+      if (isAuthError(error)) {
+        onSessionExpired();
+      }
+
+      throw error;
+    }
+  };
+
+  const handlePromptCreate = async (prompt: string) => {
+    setProjectError("");
+
+    try {
+      const createdProject = await api.createProject(auth, {
+        name: getPromptProjectName(prompt),
+        description: prompt,
+        type: "AI Generated Workspace",
+        status: "DRAFT",
+        favorite: false,
+        source: "",
+        instruction: prompt,
+        currentOutput: "",
+        optionsJson: "",
+      });
+
+      const project = mapApiProject(createdProject);
+
+      setProjects((currentProjects) => [project, ...currentProjects]);
+      onProjectOpen(project);
     } catch (error) {
       if (isAuthError(error)) {
         onSessionExpired();
@@ -225,13 +277,7 @@ export function Dashboard({
             >
               <Bell size={18} />
             </button>
-            <button
-              type="button"
-              className="rounded-full p-2 text-black/40 transition-colors hover:bg-purple-600 hover:text-white"
-              aria-label="Theme"
-            >
-              <Moon size={18} />
-            </button>
+            <ThemeSwitch lightMode={lightMode} onToggle={onLightModeToggle} />
             <button
               type="button"
               onClick={() => setIsNewProjectModalOpen(true)}
@@ -245,7 +291,10 @@ export function Dashboard({
 
         <div className="flex-1 overflow-y-auto p-6 lg:p-10">
           <div className="mx-auto max-w-6xl space-y-8">
-            <DashboardHero onCreateProject={() => setIsNewProjectModalOpen(true)} />
+            <DashboardHero
+              onCreateProject={() => setIsNewProjectModalOpen(true)}
+              onPromptCreate={handlePromptCreate}
+            />
 
             <section className="flex flex-col items-center justify-between gap-4 sm:flex-row">
               <h3 className="self-start text-xl font-bold sm:self-auto">Recent Projects</h3>

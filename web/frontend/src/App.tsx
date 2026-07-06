@@ -1,5 +1,4 @@
 import { useEffect, useLayoutEffect, useMemo, useRef, useState } from "react";
-import { useMotionValueEvent, useScroll } from "framer-motion";
 import AuthPage, { type AuthMode } from "./components/AuthPage";
 import { Dashboard, type Project } from "./components/Interface";
 import { ToolInterface, type ToolOptions, type ToolProject } from "./components/ToolInterface";
@@ -19,6 +18,25 @@ interface AuthSession {
 }
 
 const AUTH_SESSION_KEY = "convertly-auth-session";
+
+const getInitialLightMode = () => true;
+const TUTORIAL_STEP_PROGRESS: Record<TutorialStep, number> = {
+  0: 0.16,
+  1: 0.5,
+  2: 0.84,
+};
+
+const getTutorialStepFromProgress = (progress: number): TutorialStep => {
+  if (progress < 1 / 3) {
+    return 0;
+  }
+
+  if (progress < 2 / 3) {
+    return 1;
+  }
+
+  return 2;
+};
 
 const containsPasswordField = (value: unknown): boolean => {
   if (!value || typeof value !== "object") {
@@ -119,8 +137,8 @@ const toToolProject = (project: Project): ToolProject => ({
     project.status === "archived"
       ? "draft"
       : project.status,
-  source: project.source || project.description,
-  instruction: project.instruction || `Process this project and produce a clean result.`,
+  source: project.source,
+  instruction: project.instruction,
   currentOutput: project.currentOutput,
   options: parseToolOptions(project.optionsJson),
   runs: [],
@@ -130,7 +148,6 @@ const toToolProject = (project: Project): ToolProject => ({
 
 export default function ConvertlyLanding() {
   const tutorialRef = useRef<HTMLElement | null>(null);
-  const scrollLockTimeoutRef = useRef<number | null>(null);
   const [authSession, setAuthSession] = useState<AuthSession | null>(getStoredSession);
   const [isVerifyingSession, setIsVerifyingSession] = useState(() => getStoredSession() !== null);
   const [activeToolProject, setActiveToolProject] = useState<ToolProject | null>(null);
@@ -144,6 +161,30 @@ export default function ConvertlyLanding() {
   const [isProcessing, setIsProcessing] = useState(false);
   const [authOpen, setAuthOpen] = useState(false);
   const [authMode, setAuthMode] = useState<AuthMode>("signin");
+  const [lightMode, setLightMode] = useState(getInitialLightMode);
+
+  useEffect(() => {
+    setLightMode(true);
+  }, []);
+
+  useLayoutEffect(() => {
+    const documentRoot = document.documentElement;
+    const reactRoot = document.getElementById("root");
+    const theme = lightMode ? "light" : "dark";
+
+    documentRoot.classList.remove("dark", "light");
+    documentRoot.dataset.theme = theme;
+    documentRoot.style.colorScheme = theme;
+
+    reactRoot?.classList.remove("dark", "light");
+    reactRoot?.removeAttribute("data-theme");
+
+    try {
+      window.localStorage.removeItem("convertly-theme");
+      window.localStorage.removeItem("convertly-light-mode");
+    } catch {
+    }
+  }, [lightMode]);
 
   useEffect(() => {
     if (!authSession) {
@@ -204,33 +245,52 @@ export default function ConvertlyLanding() {
     window.scrollTo(0, 0);
 
     return () => {
-      if (scrollLockTimeoutRef.current !== null) {
-        window.clearTimeout(scrollLockTimeoutRef.current);
-      }
-
       window.history.scrollRestoration = previousScrollRestoration;
     };
   }, []);
 
-  const { scrollYProgress } = useScroll({
-    target: tutorialRef,
-    offset: ["start start", "end end"],
-  });
+  useEffect(() => {
+    let animationFrame = 0;
 
-  useMotionValueEvent(scrollYProgress, "change", (latest) => {
-    if (scrollLockTimeoutRef.current !== null) {
-      return;
-    }
+    const updateTutorialNavigation = () => {
+      const section = tutorialRef.current;
 
-    if (latest <= 0 || latest >= 1) {
-      setActiveNavStep(null);
-      return;
-    }
+      if (!section) {
+        return;
+      }
 
-    const nextStep: TutorialStep = latest < 0.33 ? 0 : latest < 0.66 ? 1 : 2;
-    setActiveStep(nextStep);
-    setActiveNavStep(nextStep);
-  });
+      const scrollStart = section.offsetTop;
+      const scrollDistance = Math.max(section.offsetHeight - window.innerHeight, 1);
+      const scrollEnd = scrollStart + scrollDistance;
+      const currentScroll = window.scrollY;
+
+      if (currentScroll < scrollStart || currentScroll > scrollEnd) {
+        setActiveNavStep(null);
+        return;
+      }
+
+      const progress = (currentScroll - scrollStart) / scrollDistance;
+      const nextStep = getTutorialStepFromProgress(progress);
+
+      setActiveStep(nextStep);
+      setActiveNavStep(nextStep);
+    };
+
+    const scheduleUpdate = () => {
+      window.cancelAnimationFrame(animationFrame);
+      animationFrame = window.requestAnimationFrame(updateTutorialNavigation);
+    };
+
+    scheduleUpdate();
+    window.addEventListener("scroll", scheduleUpdate, { passive: true });
+    window.addEventListener("resize", scheduleUpdate);
+
+    return () => {
+      window.cancelAnimationFrame(animationFrame);
+      window.removeEventListener("scroll", scheduleUpdate);
+      window.removeEventListener("resize", scheduleUpdate);
+    };
+  }, []);
 
   const openAuth = (mode: AuthMode) => {
     setAuthMode(mode);
@@ -273,27 +333,14 @@ export default function ConvertlyLanding() {
       return;
     }
 
-    const progressByStep: Record<TutorialStep, number> = {
-      0: 0.16,
-      1: 0.5,
-      2: 0.84,
-    };
     const scrollableDistance = section.offsetHeight - window.innerHeight;
-
-    if (scrollLockTimeoutRef.current !== null) {
-      window.clearTimeout(scrollLockTimeoutRef.current);
-    }
 
     setActiveStep(step);
     setActiveNavStep(step);
     window.scrollTo({
-      top: section.offsetTop + scrollableDistance * progressByStep[step],
+      top: section.offsetTop + scrollableDistance * TUTORIAL_STEP_PROGRESS[step],
       behavior: "smooth",
     });
-
-    scrollLockTimeoutRef.current = window.setTimeout(() => {
-      scrollLockTimeoutRef.current = null;
-    }, 700);
   };
 
   const handleCopy = (pane: "input" | "output") => {
@@ -344,14 +391,20 @@ export default function ConvertlyLanding() {
     () => (authSession ? { token: authSession.token } : null),
     [authSession?.token]
   );
+  const themeName = lightMode ? "light" : "dark";
+  const themeBoundaryClass = lightMode
+    ? "light min-h-screen bg-white text-black"
+    : "dark min-h-screen bg-[#0b1016] text-[#eef3f6]";
 
   if (authSession && apiAuth) {
     if (isVerifyingSession) {
       return (
-        <div className="grid min-h-screen place-items-center bg-slate-50 font-sans text-black">
-          <div className="text-center">
-            <div className="mx-auto mb-4 h-8 w-8 animate-spin rounded-full border-4 border-purple-200 border-t-purple-600" />
-            <p className="text-sm font-semibold text-black/60">Checking session...</p>
+        <div className={themeBoundaryClass} data-theme={themeName}>
+          <div className="grid min-h-screen place-items-center bg-slate-50 font-sans text-black dark:bg-[#0b1016] dark:text-[#eef3f6]">
+            <div className="text-center">
+              <div className="mx-auto mb-4 h-8 w-8 animate-spin rounded-full border-4 border-purple-200 border-t-purple-600" />
+              <p className="text-sm font-semibold text-black/60 dark:text-[#a6b2bf]">Checking session...</p>
+            </div>
           </div>
         </div>
       );
@@ -359,60 +412,75 @@ export default function ConvertlyLanding() {
 
     if (activeToolProject) {
       return (
-        <ToolInterface
-          key={activeToolProject.id}
-          initialProject={activeToolProject}
-          auth={apiAuth}
-          onBack={() => setActiveToolProject(null)}
-          onSessionExpired={handleSessionExpired}
-        />
+        <div className={themeBoundaryClass} data-theme={themeName}>
+          <ToolInterface
+            key={activeToolProject.id}
+            initialProject={activeToolProject}
+            auth={apiAuth}
+            lightMode={lightMode}
+            onBack={() => setActiveToolProject(null)}
+            onLightModeToggle={() => setLightMode((current) => !current)}
+            onSessionExpired={handleSessionExpired}
+          />
+        </div>
       );
     }
 
     return (
-      <Dashboard
-        user={authSession.user}
-        auth={apiAuth}
-        onLogout={handleLogout}
-        onSessionExpired={handleSessionExpired}
-        onProjectOpen={(project) => setActiveToolProject(toToolProject(project))}
-      />
+      <div className={themeBoundaryClass} data-theme={themeName}>
+        <Dashboard
+          user={authSession.user}
+          auth={apiAuth}
+          lightMode={lightMode}
+          onLightModeToggle={() => setLightMode((current) => !current)}
+          onLogout={handleLogout}
+          onSessionExpired={handleSessionExpired}
+          onProjectOpen={(project) => setActiveToolProject(toToolProject(project))}
+        />
+      </div>
     );
   }
 
   return (
-    <div className="min-h-screen bg-slate-50 font-sans text-slate-900">
-      <Navbar
-        activeNavStep={activeNavStep}
-        onAuthOpen={openAuth}
-        onTutorialStepSelect={scrollToTutorialStep}
-      />
+    <div
+      className={themeBoundaryClass}
+      data-theme={themeName}
+    >
+      <div className="min-h-screen bg-white font-sans text-black transition-colors dark:bg-[#0b1016] dark:text-[#eef3f6]">
+        <Navbar
+          activeNavStep={activeNavStep}
+          lightMode={lightMode}
+          onAuthOpen={openAuth}
+          onLightModeToggle={() => setLightMode((current) => !current)}
+          onTutorialStepSelect={scrollToTutorialStep}
+        />
 
-      <AuthPage
-        open={authOpen}
-        mode={authMode}
-        onModeChange={setAuthMode}
-        onClose={() => setAuthOpen(false)}
-        onAuthenticated={handleAuthenticated}
-      />
+        <AuthPage
+          open={authOpen}
+          mode={authMode}
+          onModeChange={setAuthMode}
+          onClose={() => setAuthOpen(false)}
+          onAuthenticated={handleAuthenticated}
+        />
 
-      <HeroSection />
-      <TutorialSection
-        activeStep={activeStep}
-        charCount={charCount}
-        copiedPane={copiedPane}
-        inputText={inputText}
-        isProcessing={isProcessing}
-        outputText={outputText}
-        tutorialRef={tutorialRef}
-        wordCount={wordCount}
-        onClear={handleClear}
-        onConvert={handleConvert}
-        onCopy={handleCopy}
-        onInputTextChange={setInputText}
-      />
-      <TechSection />
-      <Footer />
+        <HeroSection />
+        <TutorialSection
+          activeStep={activeStep}
+          charCount={charCount}
+          copiedPane={copiedPane}
+          inputText={inputText}
+          isProcessing={isProcessing}
+          outputText={outputText}
+          tutorialRef={tutorialRef}
+          wordCount={wordCount}
+          onClear={handleClear}
+          onConvert={handleConvert}
+          onCopy={handleCopy}
+          onInputTextChange={setInputText}
+        />
+        <TechSection />
+        <Footer />
+      </div>
     </div>
   );
 }

@@ -1,7 +1,9 @@
 import { ArrowLeft, Play, Square, Star } from "lucide-react";
+import { ThemeSwitch } from "../ThemeSwitch";
 
 interface WorkspaceHeaderProps {
   canRun: boolean;
+  lightMode: boolean;
   isProcessing: boolean;
   isSidebarOpen: boolean;
   isFavorite: boolean;
@@ -9,6 +11,7 @@ interface WorkspaceHeaderProps {
   saveStatus: string;
   onBack?: () => void;
   onCancelRun: () => void;
+  onLightModeToggle?: () => void;
   onNameChange: (value: string) => void;
   onOpenSidebar: () => void;
   onRun: () => void;
@@ -17,6 +20,7 @@ interface WorkspaceHeaderProps {
 
 export function WorkspaceHeader({
   canRun,
+  lightMode,
   isProcessing,
   isSidebarOpen,
   isFavorite,
@@ -24,6 +28,7 @@ export function WorkspaceHeader({
   saveStatus,
   onBack,
   onCancelRun,
+  onLightModeToggle,
   onNameChange,
   onOpenSidebar,
   onRun,
@@ -72,6 +77,13 @@ export function WorkspaceHeader({
       </div>
 
       <div className="flex items-center gap-3">
+        {onLightModeToggle && (
+          <ThemeSwitch
+            lightMode={lightMode}
+            onToggle={onLightModeToggle}
+            className="hidden sm:inline-flex"
+          />
+        )}
         <button
           type="button"
           onClick={onToggleFavorite}

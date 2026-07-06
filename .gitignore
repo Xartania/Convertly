@@ -25,3 +25,4 @@ build/
 *.old
 perf*
 compile_commands.json
+*.test

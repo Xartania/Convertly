@@ -1,14 +1,20 @@
-use std::ffi::c_int;
+mod cli;
+mod error;
+mod interpreter;
+mod lexer;
+mod parser;
+mod runtime;
 
-unsafe extern "C" {
-    fn get_success() -> c_int;
-    fn multiply_by_two(a: c_int) -> c_int;
-}
+use clap::Parser;
+use convertly::Result;
 
 fn main() {
-    let number = 21;
-    let result = unsafe { multiply_by_two(number) };
+    env_logger::builder()
+        .filter_level(log::LevelFilter::Info)
+        .init();
 
-    println!("From C code: {number} * 2 = {result}");
-    println!("From C code: get_success() => {}", unsafe { get_success() });
+    if let Err(e) = cli::Cli::parse().run() {
+        log::error!("{e}");
+        std::process::exit(1);
+    }
 }

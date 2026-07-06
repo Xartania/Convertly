@@ -8,8 +8,8 @@ pub trait Grammar<K> {
 }
 
 pub const COMMENT_SINGLE_OPEN: &str = "@>";
-pub const COMMENT_MULTI_OPEN: &str = "<@";
-pub const COMMENT_MULTI_CLOSE: &str = "@>";
+pub const COMMENT_MULTI_OPEN: &str = "@>";
+pub const COMMENT_MULTI_CLOSE: &str = "<@";
 
 pub const ALT_COMMENT_OPEN_1: &str = "//";
 pub const ALT_COMMENT_OPEN_2: &str = "/*";

@@ -1,5 +1,9 @@
 mod cli;
+mod error;
+mod interpreter;
 mod lexer;
+mod parser;
+mod runtime;
 
 use clap::Parser;
 use convertly::Result;

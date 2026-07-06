@@ -21,5 +21,8 @@ log = "0.4.33"
 # CLI
 clap = { version = "4.6.1", features = ["cargo", "derive", "env"] }
 
+# Regex
+regex = "1.12.4"
+
 [build-dependencies]
 cc = "1.2.60"

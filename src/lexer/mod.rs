@@ -1,12 +1,14 @@
+pub mod ast;
 pub mod grammar;
 pub mod span;
+pub mod stream;
 pub mod token;
 
 use grammar::Grammar;
 use span::Span;
 use token::Token;
 
-use convertly::error::LexerError;
+use crate::error::LexerError;
 
 pub struct Lexer<'a, K, G: Grammar<K>> {
     source: &'a str,
